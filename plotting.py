@@ -126,3 +126,12 @@ def plot_dopamine_peaks(
     ])
     plt.savefig(filename)
     plt.close()
+
+def plot_spike_raster_plot(t_spikes, k_spikes, filename):
+    plt.figure(figsize=[12, 9])
+    plt.plot(t_spikes, k_spikes, "b|", alpha=0.3, markersize=4)
+    plt.xlabel("Time (s)")
+    plt.ylabel("Neuron index")
+    plt.title("Raster plot of external neuron population spikes")
+    plt.savefig(filename, dpi=500)
+    plt.close()
