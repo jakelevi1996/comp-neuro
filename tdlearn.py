@@ -5,25 +5,22 @@ from time import sleep
 def tapped_delay_line(stim_mem): return stim_mem.copy()
 def boxcar(stim_mem): return np.cumsum(stim_mem)
 
-# Define time
+# Define time, stimulus (IE state) and reward
 T = np.arange(0, 25.5, 0.5)
-# Define stimulus (IE state)
 s = np.zeros(T.shape)
 s[T == 10] = 1.0
-# Define reward
 r = 0.5 * np.exp(-0.5 * np.square(T - 20))
 
 
 def dopamine_sim(
     feature_update=tapped_delay_line, gamma=1.0, epsilon=0.2, N_trials=201,
-    mem_size=25
+    mem_size=25, p=1.0
 ):
-    # Initialise state value functions
+    # Initialise state value functions, TD, learning error, and rewarded trials
     V = np.zeros([N_trials, T.size])
-    # Initialise TD
     TD = np.zeros([N_trials, T.size])
-    # Initialise TD
     learning_error = np.zeros([N_trials, T.size])
+    rewarded_trials = np.random.binomial(n=1, p=p, size=N_trials)
     # Initialise weights
     w = np.zeros(mem_size)
     # w = np.random.normal(mem_size)
@@ -32,8 +29,11 @@ def dopamine_sim(
     for trial in range(N_trials):
         # Reset stimulus memory, features and old reward
         stim_mem, phi, r_old = np.zeros(mem_size), np.zeros(mem_size), 0
+        # Determine if reward is presented
+        if rewarded_trials[trial] == 1: reward = r
+        else: reward = np.zeros(r.shape)
         # Iterate through time
-        for t in range(T.size-1):
+        for t in range(T.size):
             # Update stimulus memory and features
             phi_old = phi.copy()
             stim_mem[1:] = stim_mem[:-1]
@@ -46,31 +46,41 @@ def dopamine_sim(
             # Update weights
             w += epsilon * learning_error[trial, t] * phi_old
             # Store old reward
-            r_old = r[t]
+            r_old = reward[t]
     print(w)
     
-    return V, TD, learning_error
+    return V, TD, learning_error, rewarded_trials
 
 
-def q1():
+def q3():
     p.plot_stimulus_and_reward(T, s, r)
-    V, TD, learning_error = dopamine_sim()
-    p.plot_value_td_learning_error(T, V, TD, learning_error)
+    V, TD, learning_error, _ = dopamine_sim()
+    p.plot_value_td_learning_error(
+        T, V, TD, learning_error, filename="tapdl output signals",
+        title="Output signals for tapped delay-line TD-learning"
+    )
 
-def q2():
-    p.plot_stimulus_and_reward(T, s, r)
-    V, TD, learning_error = dopamine_sim(
-        feature_update=boxcar, epsilon=0.01,
-        # N_trials=1001
+def q4():
+    V, TD, learning_error, _ = dopamine_sim(
+        feature_update=boxcar, epsilon=0.01
     )
     p.plot_value_td_learning_error(
         T, V, TD, learning_error, filename="boxcar output signals",
         title="Output signals for boxcar TD-learning"
-        # N_trials=1001, every_nth_trial=50
+    )
+
+def q5():
+    V, TD, learning_error, rewarded_trials = dopamine_sim(
+        feature_update=boxcar, epsilon=0.01, N_trials=1000, p=0.5
+    )
+    p.plot_partial_reinforcements(
+        T, V, TD, learning_error, rewarded_trials, "Partial reinforcements",
+        title="Output signals using partial reinforcement"
     )
 
 
 
 if __name__ == "__main__":
-    q1()
-    q2()
+    q3()
+    q4()
+    q5()
