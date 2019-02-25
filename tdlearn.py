@@ -51,12 +51,18 @@ def dopamine_sim(
     
     return V, TD, learning_error, rewarded_trials
 
+def dopamine_activation_function(x, x_sat=0.27, alpha=6.0, beta=6.0):
+    y = x.copy()
+    y[x < 0] = y[x < 0] / alpha
+    y[x > x_sat] = x_sat + (y[x > x_sat] - x_sat) / beta
+    return y
+
 
 def q3():
-    p.plot_stimulus_and_reward(T, s, r)
+    p.plot_stimulus_and_reward(T, s, r, filename="q3a input signals")
     V, TD, learning_error, _ = dopamine_sim()
     p.plot_value_td_learning_error(
-        T, V, TD, learning_error, filename="tapdl output signals",
+        T, V, TD, learning_error, filename="q3b tapdl output signals",
         title="Output signals for tapped delay-line TD-learning"
     )
 
@@ -65,7 +71,7 @@ def q4():
         feature_update=boxcar, epsilon=0.01
     )
     p.plot_value_td_learning_error(
-        T, V, TD, learning_error, filename="boxcar output signals",
+        T, V, TD, learning_error, filename="q4a boxcar output signals",
         title="Output signals for boxcar TD-learning"
     )
 
@@ -74,13 +80,20 @@ def q5():
         feature_update=boxcar, epsilon=0.01, N_trials=1000, p=0.5
     )
     p.plot_partial_reinforcements(
-        T, V, TD, learning_error, rewarded_trials, "Partial reinforcements",
+        T, V, TD, learning_error, rewarded_trials,
+        "q5a partial reinforcements",
         title="Output signals using partial reinforcement"
     )
+    dopamine_activity = dopamine_activation_function(learning_error)
+    p.plot_dopamine_vs_learning_error(
+        T, dopamine_activity, learning_error, "q5c dopamine time course"
+    )
 
-
+def q6():
+    pass
 
 if __name__ == "__main__":
     q3()
     q4()
     q5()
+    q6()

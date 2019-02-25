@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Plot reward and stimulus
-def plot_stimulus_and_reward(T, s, r, filename="Input signals"):
+def plot_stimulus_and_reward(T, s, r, filename):
     plt.figure(figsize=[8, 6])
     plt.plot(T, s, 'r', T, r, 'b', alpha=0.5)
     plt.legend(["Stimulus", "Reward"])
@@ -82,4 +82,19 @@ def plot_partial_reinforcements(
     plt.savefig(filename)
     plt.close()
 
-
+def plot_dopamine_vs_learning_error(
+    T, dopamine_activity, learning_error, filename,
+    last_N_trials=100, a=0.5
+):
+    # Truncate arrays to last few trials
+    dopamine_activity = dopamine_activity[-last_N_trials:].mean(axis=0)
+    learning_error = learning_error[-last_N_trials:].mean(axis=0)
+    plt.figure()
+    plt.plot(T, learning_error, "r", T, dopamine_activity, "b", alpha=a)
+    plt.grid(True)
+    plt.title("Time course of dopamine signal")
+    plt.ylabel("Signal amplitude")
+    plt.xlabel("Time (s)")
+    plt.legend(["Learning error", "Dopamine signal"])
+    plt.savefig(filename)
+    plt.close()
