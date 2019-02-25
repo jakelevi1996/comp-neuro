@@ -145,7 +145,7 @@ def plot_single_lif_neuron(t, input_spikes, V, V_th, output_spikes, filename):
     )
     axes[0].set_title("Input spike train")
     axes[0].plot(
-        input_spike_times, np.full(input_spike_times.shape, 0.5), "b|",
+        input_spike_times, np.ones(input_spike_times.shape), "b|",
         alpha=0.5
     )
     axes[0].set_yticks([])
@@ -154,11 +154,81 @@ def plot_single_lif_neuron(t, input_spikes, V, V_th, output_spikes, filename):
     axes[1].plot(t, V, "g")
     axes[2].set_title("Output spike train")
     axes[2].plot(
-        output_spike_times, np.full(output_spike_times.shape, 0.5), "r|",
+        output_spike_times, np.ones(output_spike_times.shape), "r|",
         alpha=0.5
     )
     axes[2].set_yticks([])
     axes[2].set_xlabel("Time (s)")
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
+def plot_single_lif_noreset(t, input_spikes, V, filename):
+    spike_coords = np.argwhere(input_spikes > 0)
+    t_spikes = t[spike_coords[:, 1]]
+    k_spikes = spike_coords[:, 0]
+
+    fig, axes = plt.subplots(2, 1, sharex=True)
+    fig.set_size_inches(12, 9)
+
+    axes[0].set_title("Input spike trains")
+    axes[0].plot(t_spikes, k_spikes, "b|", alpha=0.3, markersize=4)
+    axes[1].set_title("Membrane potential (V)")
+    axes[1].plot(t, V, "g")
+    axes[1].set_xlabel("Time (s)")
+    axes[1].grid(True)
+
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+    
+def plot_stationary_statistics(K_list, means, vars, t_means, t_vars, filename):
+    _, axes = plt.subplots(2, 1, sharex=True)
+    
+    axes[0].semilogx(K_list, t_means, "b--")
+    axes[0].semilogx(K_list, means, "bo-")
+
+    axes[1].loglog(K_list, t_vars, "b--")
+    axes[1].loglog(K_list, vars, "bo-")
+
+    axes[0].set_title("Mean membrane potential (V)")
+    axes[0].legend(["Theoretical", "Empirical"])
+    axes[1].set_title("Membrane potential variance")
+    axes[1].legend(["Theoretical", "Empirical"])
+    axes[1].set_xlabel("Number of input neurons")
+    for a in axes: a.grid(True)
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
+def plot_neuron_spikes_many_inputs(
+    t, input_spikes, V_above_th, V_th, output_spikes, filename
+):
+    spike_coords = np.argwhere(input_spikes > 0)
+    t_spikes = t[spike_coords[:, 1]]
+    k_spikes = spike_coords[:, 0]
+    output_spike_times = t[output_spikes > 0]
+
+    fig, axes = plt.subplots(
+        3, 1, sharex=True, gridspec_kw={"height_ratios": [5, 5, 1]}
+    )
+    fig.set_size_inches(12, 9)
+
+    axes[0].set_title("Input spike trains")
+    axes[0].plot(t_spikes, k_spikes, "b|", alpha=0.3, markersize=4)
+
+    axes[1].set_title("Membrane potential (V)")
+    axes[1].plot([min(t), max(t)], [V_th, V_th], "k:")
+    axes[1].plot(t, V_above_th, "g")
+
+    axes[2].set_title("Output spike train")
+    axes[2].plot(
+        output_spike_times, np.ones(output_spike_times.shape), "r|",
+        alpha=0.5
+    )
+    axes[2].set_yticks([])
+    axes[2].set_xlabel("Time (s)")
+    
     plt.tight_layout()
     plt.savefig(filename)
     plt.close()
