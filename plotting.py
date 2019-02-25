@@ -21,15 +21,14 @@ def plot_value_td_learning_error(
     fig, axes = plt.subplots(3, 1, sharex=True)
     fig.set_size_inches(8, 6)
     trials_to_plot = range(0, N_trials, every_nth_trial)
-    colours = iter(plt.cm.get_cmap("winter")(
-        np.linspace(1, 0, len(trials_to_plot))
-    ))
+    cmap = plt.cm.get_cmap("winter")
+    colours = iter(cmap(np.linspace(1, 0, len(trials_to_plot))))
     handles, labels = [], []
 
     for trial in trials_to_plot:
         colour = next(colours)
         labels.append("{} trials".format(trial))
-        handles.append(axes[0].plot(T, V[trial], c=colour, alpha=a)[0])
+        handles.extend(axes[0].plot(T, V[trial], c=colour, alpha=a))
         axes[1].plot(T, TD[trial], c=colour, alpha=a)
         axes[2].plot(T, learning_error[trial], c=colour, alpha=a)
     for a in axes: a.grid(True)
@@ -89,12 +88,28 @@ def plot_dopamine_vs_learning_error(
     # Truncate arrays to last few trials
     dopamine_activity = dopamine_activity[-last_N_trials:].mean(axis=0)
     learning_error = learning_error[-last_N_trials:].mean(axis=0)
+    # Create figure and plot
     plt.figure()
     plt.plot(T, learning_error, "r", T, dopamine_activity, "b", alpha=a)
+    # Format figure
     plt.grid(True)
     plt.title("Time course of dopamine signal")
     plt.ylabel("Signal amplitude")
     plt.xlabel("Time (s)")
     plt.legend(["Learning error", "Dopamine signal"])
+    # Save and close
+    plt.savefig(filename)
+    plt.close()
+
+def plot_probabilistic_dopamine(T, dopamine_signals, p_list, filename, a=0.5):
+    cmap = plt.cm.get_cmap("winter")
+    colours = iter(cmap(np.linspace(1, 0, len(p_list))))
+    handles, labels = [], []
+    plt.figure()
+    for d, p in zip(dopamine_signals, p_list):
+        handles.extend(plt.plot(T, d, c=next(colours), alpha=a))
+        labels.append("p = {:.2}".format(p))
+    plt.grid(True)
+    plt.legend(handles, labels)
     plt.savefig(filename)
     plt.close()

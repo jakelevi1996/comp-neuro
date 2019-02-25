@@ -1,5 +1,5 @@
 import numpy as np
-import plotting as p
+import plotting
 from time import sleep
 
 def tapped_delay_line(stim_mem): return stim_mem.copy()
@@ -59,9 +59,9 @@ def dopamine_activation_function(x, x_sat=0.27, alpha=6.0, beta=6.0):
 
 
 def q3():
-    p.plot_stimulus_and_reward(T, s, r, filename="q3a input signals")
+    plotting.plot_stimulus_and_reward(T, s, r, filename="q3a input signals")
     V, TD, learning_error, _ = dopamine_sim()
-    p.plot_value_td_learning_error(
+    plotting.plot_value_td_learning_error(
         T, V, TD, learning_error, filename="q3b tapdl output signals",
         title="Output signals for tapped delay-line TD-learning"
     )
@@ -70,7 +70,7 @@ def q4():
     V, TD, learning_error, _ = dopamine_sim(
         feature_update=boxcar, epsilon=0.01
     )
-    p.plot_value_td_learning_error(
+    plotting.plot_value_td_learning_error(
         T, V, TD, learning_error, filename="q4a boxcar output signals",
         title="Output signals for boxcar TD-learning"
     )
@@ -79,21 +79,36 @@ def q5():
     V, TD, learning_error, rewarded_trials = dopamine_sim(
         feature_update=boxcar, epsilon=0.01, N_trials=1000, p=0.5
     )
-    p.plot_partial_reinforcements(
+    plotting.plot_partial_reinforcements(
         T, V, TD, learning_error, rewarded_trials,
         "q5a partial reinforcements",
         title="Output signals using partial reinforcement"
     )
     dopamine_activity = dopamine_activation_function(learning_error)
-    p.plot_dopamine_vs_learning_error(
+    plotting.plot_dopamine_vs_learning_error(
         T, dopamine_activity, learning_error, "q5c dopamine time course"
     )
 
 def q6():
+    p_list = np.arange(0.0, 1.01, 0.1)
+    dopamine_signals = []
+    for p in p_list:
+        print("p =", p)
+        _, _, learning_error, _ = dopamine_sim(
+            feature_update=boxcar, epsilon=0.01, N_trials=1500, p=p
+        )
+        d = dopamine_activation_function(learning_error)
+        dopamine_signals.append(d[-500:].mean(axis=0))
+    plotting.plot_probabilistic_dopamine(
+        T, dopamine_signals, p_list, "q6 probabilistic dopamine"
+    )
+
+def q7():
     pass
 
+
 if __name__ == "__main__":
-    q3()
-    q4()
-    q5()
+    # q3()
+    # q4()
+    # q5()
     q6()
