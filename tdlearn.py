@@ -61,7 +61,7 @@ def dopamine_activation_function(x, x_sat=0.27, alpha=6.0, beta=6.0):
 def q3():
     plotting.plot_stimulus_and_reward(T, s, r, filename="q3a input signals")
     V, TD, learning_error, _ = dopamine_sim()
-    plotting.plot_value_td_learning_error(
+    plotting.plot_td_learning_signals(
         T, V, TD, learning_error, filename="q3b tapdl output signals",
         title="Output signals for tapped delay-line TD-learning"
     )
@@ -70,7 +70,7 @@ def q4():
     V, TD, learning_error, _ = dopamine_sim(
         feature_update=boxcar, epsilon=0.01
     )
-    plotting.plot_value_td_learning_error(
+    plotting.plot_td_learning_signals(
         T, V, TD, learning_error, filename="q4a boxcar output signals",
         title="Output signals for boxcar TD-learning"
     )
@@ -97,18 +97,36 @@ def q6():
         _, _, learning_error, _ = dopamine_sim(
             feature_update=boxcar, epsilon=0.01, N_trials=1500, p=p
         )
-        d = dopamine_activation_function(learning_error)
-        dopamine_signals.append(d[-500:].mean(axis=0))
+        d = dopamine_activation_function(learning_error)[-500:].mean(axis=0)
+        dopamine_signals.append(d)
     plotting.plot_probabilistic_dopamine(
         T, dopamine_signals, p_list, "q6 probabilistic dopamine"
     )
 
 def q7():
-    pass
+    p_list = np.arange(0.0, 1.01, 0.1)
+    peak_dopamine_at_stimulus, peak_dopamine_at_reward = [], []
+
+    for p in p_list:
+        print("p =", p)
+        _, _, learning_error, _ = dopamine_sim(
+            feature_update=boxcar, epsilon=0.01, N_trials=1500, p=p
+        )
+        d = dopamine_activation_function(learning_error)[-500:].mean(axis=0)
+        peak_dopamine_at_stimulus.append(max(d[T < 15]))
+        peak_dopamine_at_reward.append(max(d[T > 15]))
+    
+    plotting.plot_dopamine_peaks(
+        p_list, peak_dopamine_at_stimulus, peak_dopamine_at_reward,
+        filename="q7 dopamine peaks"
+    )
+
+
 
 
 if __name__ == "__main__":
     # q3()
     # q4()
     # q5()
-    q6()
+    # q6()
+    q7()

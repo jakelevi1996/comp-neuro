@@ -14,7 +14,7 @@ def plot_stimulus_and_reward(T, s, r, filename):
     plt.close()
 
 # Plot state value, temporal difference, and learning error
-def plot_value_td_learning_error(
+def plot_td_learning_signals(
     T, V, TD, learning_error, filename, title,
     N_trials=201, every_nth_trial=10, a=0.5
 ):
@@ -111,5 +111,18 @@ def plot_probabilistic_dopamine(T, dopamine_signals, p_list, filename, a=0.5):
         labels.append("p = {:.2}".format(p))
     plt.grid(True)
     plt.legend(handles, labels)
+    plt.savefig(filename)
+    plt.close()
+
+def plot_dopamine_peaks(
+    p_list, peak_dopamine_at_stimulus, peak_dopamine_at_reward, filename
+):
+    plt.figure()
+    plt.plot(p_list, peak_dopamine_at_stimulus, "ro-", )
+    plt.plot(p_list, peak_dopamine_at_reward, "bo-")
+    plt.grid(True)
+    plt.legend([
+        "Peak dopamine at time of stimulus", "Peak dopamine at time of reward"
+    ])
     plt.savefig(filename)
     plt.close()
