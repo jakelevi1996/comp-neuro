@@ -24,7 +24,28 @@ def q1():
     
     mean_sum = (spikes > 0).sum(axis=1).mean()
     print(mean_sum)
+
+def q2():
+    w = 0.9
+    t, input_spikes = gen_spike_trains(num_neurons=1)
+    input_spikes = input_spikes.ravel()
+
+    V = np.zeros(t.size)
+    V_above_th = np.zeros(t.size)
+    output_spikes = np.zeros(t.size)
     
+    for k in range(1, t.size):
+        V[k] = (1.0 - dt / tau) * V[k-1] + dt * w * input_spikes[k-1]
+        V_above_th[k] = V[k]
+        if V[k] > V_th:
+            V[k] = 0.0
+            output_spikes[k] = 1.0 / dt
+    
+    plotting.plot_single_lif_neuron(
+        t, input_spikes, V_above_th, V_th, output_spikes, "q2 single LIF neuron"
+    )
+
 
 if __name__ == "__main__":
-    q1()
+    # q1()
+    q2()

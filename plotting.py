@@ -135,3 +135,30 @@ def plot_spike_raster_plot(t_spikes, k_spikes, filename):
     plt.title("Raster plot of external neuron population spikes")
     plt.savefig(filename, dpi=500)
     plt.close()
+
+def plot_single_lif_neuron(t, input_spikes, V, V_th, output_spikes, filename):
+    input_spike_times = t[input_spikes > 0]
+    output_spike_times = t[output_spikes > 0]
+
+    _, axes = plt.subplots(
+        3, 1, sharex=True, gridspec_kw={"height_ratios": [1, 5, 1]}
+    )
+    axes[0].set_title("Input spike train")
+    axes[0].plot(
+        input_spike_times, np.full(input_spike_times.shape, 0.5), "b|",
+        alpha=0.5
+    )
+    axes[0].set_yticks([])
+    axes[1].set_title("Membrane potential (V)")
+    axes[1].plot([min(t), max(t)], [V_th, V_th], "k:")
+    axes[1].plot(t, V, "g")
+    axes[2].set_title("Output spike train")
+    axes[2].plot(
+        output_spike_times, np.full(output_spike_times.shape, 0.5), "r|",
+        alpha=0.5
+    )
+    axes[2].set_yticks([])
+    axes[2].set_xlabel("Time (s)")
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
