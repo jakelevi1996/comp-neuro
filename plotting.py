@@ -33,7 +33,7 @@ def plot_td_learning_signals(
         axes[2].plot(T, learning_error[trial], c=colour, alpha=a)
     for a in axes: a.grid(True)
     fig.legend(handles, labels, "center right")
-    axes[0].set_title(title, fontsize=15)
+    axes[0].set_title(title)
     axes[0].set_ylabel("State value")
     axes[1].set_ylabel("Temporal difference")
     axes[2].set_ylabel("Learning error")
@@ -228,7 +228,46 @@ def plot_neuron_spikes_many_inputs(
     )
     axes[2].set_yticks([])
     axes[2].set_xlabel("Time (s)")
-    
+
     plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
+def plot_populations_spikes(t, spikes_X, spikes_E, spikes_I, filename):
+    fig, axes = plt.subplots(3, 1, sharex=True)
+    fig.set_size_inches(12, 9)
+    
+    spike_coords = np.argwhere(spikes_X > 0)
+    t_spikes = t[spike_coords[:, 1]]
+    k_spikes = spike_coords[:, 0]
+    axes[0].set_title("External spike trains")
+    axes[0].plot(t_spikes, k_spikes, "b|", alpha=0.3, markersize=4)
+    
+    spike_coords = np.argwhere(spikes_E > 0)
+    t_spikes = t[spike_coords[:, 1]]
+    k_spikes = spike_coords[:, 0]
+    axes[1].set_title("Excitory spike trains")
+    axes[1].plot(t_spikes, k_spikes, "g|", alpha=0.3, markersize=4)
+    
+    spike_coords = np.argwhere(spikes_I > 0)
+    t_spikes = t[spike_coords[:, 1]]
+    k_spikes = spike_coords[:, 0]
+    axes[2].set_title("Inhibitory spike trains")
+    axes[2].plot(t_spikes, k_spikes, "r|", alpha=0.3, markersize=4)
+    
+    for a in axes: a.set_yticks([])
+    axes[2].set_xlabel("Time (s)")
+
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
+def plot_firing_rates(r_X_list, r_E_list, r_I_list, filename):
+    plt.figure()
+    plt.plot(r_X_list, r_I_list, "ro-", r_X_list, r_E_list, "bo-")
+    plt.legend(["Inhibitory firing rate (Hz)", "Excitory firing rate (Hz)"])
+    plt.xlabel("External firing rate (Hz)")
+    plt.grid(True)
+    plt.title("Internal firing rates as a function of external firing rates")
     plt.savefig(filename)
     plt.close()
